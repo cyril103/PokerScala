@@ -1,0 +1,71 @@
+[error] -- [E103] Syntax Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:1:4 
+[error] 1 |    state.playerById(humanId).foreach { player =>
+[error]   |    ^^^^^
+[error]   |    Illegal start of toplevel definition
+[error]   |
+[error]   | longer explanation available when compiling with `-explain`
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:36807:0 ----
+[error] 36807 |"    state.playerById(humanId).foreach { player =>
+[error]       |^
+[error]       |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:37157:0 ----
+[error] 37157 |"    state.playerById(humanId).foreach { player =>
+[error]       |^
+[error]       |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:118010:0 ---
+[error] 118010 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:118360:0 ---
+[error] 118360 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:119086:0 ---
+[error] 119086 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:119536:0 ---
+[error] 119536 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:120287:0 ---
+[error] 120287 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:121162:0 ---
+[error] 121162 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:122188:0 ---
+[error] 122188 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:122388:0 ---
+[error] 122388 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:123414:0 ---
+[error] 123414 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:123664:0 ---
+[error] 123664 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:190974:0 ---
+[error] 190974 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:191074:0 ---
+[error] 191074 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:191274:0 ---
+[error] 191274 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] -- Error: D:\JeuIA\PokerScala\src\main\scala\poker\ui\MainApp.scala:191524:0 ---
+[error] 191524 |"    state.playerById(humanId).foreach { player =>
+[error]        |^
+[error]        |unclosed string literal
+[error] 17 errors found

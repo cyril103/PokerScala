@@ -1,0 +1,6 @@
+#Successful Tests
+#Fri Sep 19 23:51:44 CEST 2025
+poker.GameStateSpec=1758318704806
+poker.PotManagerSpec=1758318704734
+poker.AIPolicySpec=1758318704678
+poker.HandEvaluatorSpec=1758318704655

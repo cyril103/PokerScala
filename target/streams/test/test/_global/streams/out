@@ -1,0 +1,39 @@
+[debug] javaOptions: Vector(--module-path=C:\Users\cyril\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\openjfx\javafx-controls\21.0.3\javafx-controls-21.0.3-win.jar;C:\Users\cyril\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\openjfx\javafx-graphics\21.0.3\javafx-graphics-21.0.3-win.jar;C:\Users\cyril\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\openjfx\javafx-media\21.0.3\javafx-media-21.0.3-win.jar;C:\Users\cyril\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\openjfx\javafx-graphics\21.0.3\javafx-graphics-21.0.3.jar;C:\Users\cyril\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\openjfx\javafx-base\21.0.3\javafx-base-21.0.3.jar;C:\Users\cyril\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\openjfx\javafx-base\21.0.3\javafx-base-21.0.3-win.jar, --add-modules=javafx.controls,javafx.graphics,javafx.media)
+[debug] Forking tests - parallelism = false
+[debug] Create a single-thread test executor
+[debug] Runner for org.scalatest.tools.Framework produced 4 initial tasks for 4 tests.
+[debug]   Running TaskDef(poker.HandEvaluatorSpec, sbt.ForkMain$SubclassFingerscan@482f8f11, false, [SuiteSelector])
+[info] HandEvaluatorSpec:
+[info] - detects straight flush with ace high
+[info] - evaluate7 chooses best five cards
+[info] - wheel straight counts as five high
+[info] - pair beats high card
+[debug]     Produced 0 nested tasks and 4 events.
+[debug]   Running TaskDef(poker.AIPolicySpec, sbt.ForkMain$SubclassFingerscan@1593948d, false, [SuiteSelector])
+[info] AIPolicySpec:
+[info] - folds weak equity facing a bet
+[info] - raises with strong equity
+[info] - checks when facing no bet and low aggression
+[debug]     Produced 0 nested tasks and 3 events.
+[debug]   Running TaskDef(poker.PotManagerSpec, sbt.ForkMain$SubclassFingerscan@1b604f19, false, [SuiteSelector])
+[info] PotManagerSpec:
+[info] - buildPotState computes side pots correctly
+[info] - resolveShowdown distributes side pots to winners
+[info] - folded chips stay in the pot
+[info] - odd chips go to the first eligible winner in seat order
+[debug]     Produced 0 nested tasks and 4 events.
+[debug]   Running TaskDef(poker.GameStateSpec, sbt.ForkMain$SubclassFingerscan@7823a2f9, false, [SuiteSelector])
+[info] GameStateSpec:
+[info] - startHand deals cards and sets street to preflop
+[info] - folding heads-up ends the hand immediately
+[debug]     Produced 0 nested tasks and 2 events.
+[info] Run completed in 1 second, 110 milliseconds.
+[info] Total number of tests run: 13
+[info] Suites: completed 4, aborted 0
+[info] Tests: succeeded 13, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[debug] Passed tests:
+[debug] 	poker.AIPolicySpec
+[debug] 	poker.GameStateSpec
+[debug] 	poker.HandEvaluatorSpec
+[debug] 	poker.PotManagerSpec
