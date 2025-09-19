@@ -27,7 +27,7 @@
 [info] - startHand deals cards and sets street to preflop
 [info] - folding heads-up ends the hand immediately
 [debug]     Produced 0 nested tasks and 2 events.
-[info] Run completed in 1 second, 110 milliseconds.
+[info] Run completed in 1 second, 125 milliseconds.
 [info] Total number of tests run: 13
 [info] Suites: completed 4, aborted 0
 [info] Tests: succeeded 13, failed 0, canceled 0, ignored 0, pending 0

@@ -129,7 +129,7 @@ final class MainApp extends Application {
 
   private def maybeHandleHumanElimination(state: GameState): Unit = {
     state.playerById(humanId).foreach { player =>
-      val busted = player.stack <= 0
+      val busted = player.stack <= 0 && !player.inHand
       if (busted && !humanEliminatedNotified) {
         humanEliminatedNotified = true
         triggerHumanGameOver()
@@ -248,3 +248,4 @@ object MainApp {
     Application.launch(classOf[MainApp], args: _*)
   }
 }
+

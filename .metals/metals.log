@@ -552,3 +552,6 @@ sept. 19, 2025 9:09:47 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint not
 INFO: Unsupported notification method: $/setTrace
 sept. 19, 2025 9:09:52 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
 INFO: Unsupported notification method: $/setTrace
+2025.09.20 00:03:05 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\HandRank.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.20 00:03:05 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\HandRank.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.20 00:03:13 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\HandRank.scala. Using presentation compiler with project's scala-library version: 3.3.6
