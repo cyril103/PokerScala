@@ -6,7 +6,7 @@ import javafx.scene.layout.{BorderPane, HBox, Pane, StackPane, VBox}
 import javafx.scene.shape.Ellipse
 import javafx.scene.paint.{Color, RadialGradient, CycleMethod, Stop}
 import poker.engine.Card
-import poker.model.{Action, GameEvent, Player, PlayerStatus, PotState, ShowdownResult, Street}
+import poker.model.{Action, GameEvent, Player, PlayerStatus, PotState, ShowdownResult, Street, HandHistory}
 
 import scala.collection.mutable
 import scala.collection.immutable.Set
@@ -61,10 +61,17 @@ final class TableView extends BorderPane {
   private var boardCards: Vector[Card] = Vector.empty
   private val chipDenominations: Vector[Int] = Vector(100, 25, 5, 1)
 
+  private var historyListener: HandHistory => Unit = _ => ()
+
+  def setHistoryListener(listener: HandHistory => Unit): Unit = {
+    historyListener = listener
+  }
+
   private var playersSnapshot: Vector[Player] = Vector.empty
   private var buttonIndex: Int = 0
   private var currentPlayerId: Option[Int] = None
   private var lastActionByPlayer: Map[Int, String] = Map.empty
+  private var currentHandId: Long = 0L
 
 
   tableRoot.getChildren.addAll(tableEllipse, chipsLayer, cardsView, seatLayer, overlay)
@@ -137,7 +144,8 @@ final class TableView extends BorderPane {
 
   def appendLog(event: GameEvent): Unit = {
     event match {
-      case GameEvent.HandStarted(_) =>
+      case GameEvent.HandStarted(handId) =>
+        currentHandId = handId
         revealedPlayerIds = Set.empty
         lastActionByPlayer = Map.empty
       case GameEvent.PlayerActed(playerId, action) =>
@@ -145,6 +153,8 @@ final class TableView extends BorderPane {
       case GameEvent.Showdown(results) =>
         val nonZeroWinners = results.filter(_.share > 0).map(_.playerId)
         revealedPlayerIds = nonZeroWinners.toSet
+        val playerHands = playersSnapshot.map(p => poker.model.PlayerHand(p.name, p.holeCards))
+        historyListener(poker.model.HandHistory(currentHandId, boardCards, playerHands))
       case _ => ()
     }
 

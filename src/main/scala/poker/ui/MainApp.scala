@@ -10,6 +10,7 @@ import javafx.util.Duration
 import poker.ai.{AIProfile, Bot}
 import poker.engine.{Dealer, GameState}
 import poker.model.{Action, Config, GameEvent, Player, PlayerStatus, Street}
+import poker.ui.HistoryView
 
 final class MainApp extends Application {
   private var config: Config = Config()
@@ -37,8 +38,15 @@ final class MainApp extends Application {
     dealer = new Dealer(GameState.initial(config, players))
     syncBotsWithState()
 
+    val historyView = new HistoryView()
+    tableView.setHistoryListener(historyView.addHandHistory)
+
+    val splitPane = new javafx.scene.control.SplitPane()
+    splitPane.getItems.addAll(tableView, historyView)
+    splitPane.setDividerPositions(0.75)
+
     val root = new BorderPane()
-    root.setCenter(tableView)
+    root.setCenter(splitPane)
     root.setRight(controlsView)
 
     val scene = new Scene(root, 1024, 640)

@@ -157,13 +157,38 @@
 }
 
 .table-log {
-    -fx-control-inner-background: rgba(10, 12, 15, 0.85);
-    -fx-text-fill: #f3f3f5;
-    -fx-font-size: 13px;
-    -fx-padding: 12;
-    -fx-highlight-fill: #44b2ff;
-    -fx-highlight-text-fill: #081018;
+    -fx-font-family: "Courier New", monospace;
+    -fx-font-size: 11px;
 }
+
+.history-view {
+    -fx-background-color: #2E2E2E;
+    -fx-padding: 5px;
+}
+
+.history-hand {
+    -fx-padding: 8px;
+    -fx-background-color: #3A3A3A;
+    -fx-border-color: #505050;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+}
+
+.history-hand-id {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #E0E0E0;
+}
+
+.history-board {
+    -fx-font-style: italic;
+    -fx-text-fill: #B0B0B0;
+}
+
+.history-player-hand {
+    -fx-text-fill: #D0D0D0;
+}
+
 
 .table-log:disabled {
     -fx-opacity: 0.92;
