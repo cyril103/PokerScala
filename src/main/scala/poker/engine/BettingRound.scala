@@ -45,7 +45,9 @@ final case class BettingRound(
       case Action.Fold => sanitizedPending - playerId
       case Action.Check => sanitizedPending - playerId
       case Action.Call => sanitizedPending - playerId
-      case Action.AllIn => sanitizedPending - playerId
+      case Action.AllIn =>
+        if (updated.bet > currentBet) activeIds - playerId
+        else sanitizedPending - playerId
       case Action.Bet(_) => activeIds - playerId
       case Action.Raise(_) => activeIds - playerId
     }
