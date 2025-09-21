@@ -97,6 +97,11 @@ final class MainApp extends Application {
     board.take(count)
   }
 
+  private def shouldAutoRunBoard(state: GameState): Boolean = {
+    val active = state.players.filter(_.inHand)
+    active.nonEmpty && active.forall(_.status == PlayerStatus.AllIn)
+  }
+
   private def shouldPauseAfterStreet(street: Street): Boolean = {
     if (config.allInStreetPauseMs <= 0) false
     else {
@@ -158,7 +163,8 @@ final class MainApp extends Application {
 
     maybeHandleHumanElimination(state)
 
-    val isHumanTurn = dealer.nextToAct.contains(humanId) && state.bettingRound.isDefined
+    val autoRun = shouldAutoRunBoard(state)
+    val isHumanTurn = !autoRun && dealer.nextToAct.contains(humanId) && state.bettingRound.isDefined
     if (isHumanTurn) {
       for {
         round <- state.bettingRound
@@ -173,7 +179,7 @@ final class MainApp extends Application {
           currentBet = round.currentBet,
           maxBet = maxBet,
           canCheck = round.currentBet == player.bet,
-          hasChips = player.stack > 0
+          hasChips = player.stack > 0 && player.status != PlayerStatus.AllIn
         )
       }
     } else {

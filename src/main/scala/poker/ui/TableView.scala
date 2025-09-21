@@ -109,8 +109,10 @@ final class TableView extends BorderPane {
   def appendLog(event: GameEvent): Unit = {
     event match {
       case GameEvent.HandStarted(_)    => revealedPlayerIds = Set.empty
-      case GameEvent.Showdown(results) => revealedPlayerIds = results.map(_.playerId).toSet
-      case _                           => ()
+      case GameEvent.Showdown(results) =>
+        val nonZeroWinners = results.filter(_.share > 0).map(_.playerId)
+        revealedPlayerIds = nonZeroWinners.toSet
+      case _ => ()
     }
 
     val line = event match {
