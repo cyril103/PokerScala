@@ -1,0 +1,24 @@
+# Ignore compiled classes and log files
+*.class
+*.log
+
+# Ignore sbt build artifacts
+/project/boot/
+/project/plugins/project/
+/project/target/
+/target/
+
+# Ignore IDE-specific files
+/.bsp/
+/.metals/
+/.vscode/
+.idea/
+*.iml
+*.ipr
+.settings/
+.classpath
+.project
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
