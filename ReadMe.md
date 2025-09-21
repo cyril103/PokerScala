@@ -135,6 +135,7 @@ Settings : nombre d’IA (1–8), stacks initiaux, blinds, vitesse animations, i
 Équité / EHS via Monte-Carlo (ex. 2 000 itérations par décision, avec time-budget ~15–30 ms)
 
 Profils : riskTolerance [0..1], bluffFreq [0..0.3], aggression [0..1], callStation [0..1]
+- Préréglages : Balanced, Tight-Passive, Loose-Aggressive, Calling Station, Opportunist (assignés de façon déterministe selon le siège des bots)
 
 Policy : position, street, SPR, pot odds, EHS
 
