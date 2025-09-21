@@ -109,6 +109,9 @@ final class Dealer(initialState: GameState) {
 
   private def proceedAction(playerIdx: Int, playerId: Int, round: BettingRound, action: Action): Vector[GameEvent] = {
     val player = state.players(playerIdx)
+    if (requiresRaisePrivilege(round, player, action) && !round.canPlayerRaise(playerId)) {
+      return Vector(GameEvent.Message("Illegal raise"))
+    }
     val (updatedPlayer, contribution) = applyAction(player, action, round.currentBet, round.minRaise)
     var players = state.players.updated(playerIdx, updatedPlayer)
     val pot = if (contribution > 0) state.potManager.addContribution(playerId, contribution) else state.potManager
@@ -143,6 +146,15 @@ final class Dealer(initialState: GameState) {
     autoAdvanceIfNeeded(baseEvents)
   }
 
+  private def requiresRaisePrivilege(round: BettingRound, player: Player, action: Action): Boolean = {
+    action match {
+      case Action.Bet(_)   => true
+      case Action.Raise(_) => true
+      case Action.AllIn    => player.bet + player.stack > round.currentBet
+      case _               => false
+    }
+  }
+
   private def applyAction(player: Player, action: Action, currentBet: Int, minRaise: Int): (Player, Int) = {
     action match {
       case Action.Fold =>
@@ -169,7 +181,6 @@ final class Dealer(initialState: GameState) {
         next -> (next.totalInvested - player.totalInvested)
     }
   }
-
   private def advanceStreet(players: Vector[Player], pot: PotManager): Vector[GameEvent] = {
     val nextStreet = state.street match {
       case Street.PreFlop  => Street.Flop
@@ -289,8 +300,4 @@ final class Dealer(initialState: GameState) {
 
   private def activePlayerIds(players: Vector[Player]): Set[Int] = players.filter(_.inHand).map(_.id).toSet
 }
-
-
-
-
 

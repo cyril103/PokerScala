@@ -8,7 +8,8 @@ final case class BettingRound(
   lastAggressor: Option[Int],
   pending: Set[Int],
   actionOrder: Vector[Int],
-  pointer: Int
+  pointer: Int,
+  raiseEligible: Set[Int]
 ) {
   def isComplete(players: Vector[Player]): Boolean =
     activePlayers(players).size <= 1 || pending.isEmpty
@@ -34,45 +35,80 @@ final case class BettingRound(
     }
   }
 
+  def canPlayerRaise(playerId: Int): Boolean = raiseEligible.contains(playerId)
+
   def onAction(player: Player, action: Action, updated: Player, players: Vector[Player]): BettingRound = {
     val playerId = player.id
     val orderIndex = actionOrder.indexOf(playerId)
     val nextPointer = if (orderIndex == -1) pointer else (orderIndex + 1) % math.max(actionOrder.size, 1)
-    val activeIds = activePlayers(players).filter(_.canAct).map(_.id).toSet
-    val sanitizedPending = pending intersect activeIds
 
-    val afterActionPending = action match {
-      case Action.Fold => sanitizedPending - playerId
-      case Action.Check => sanitizedPending - playerId
-      case Action.Call => sanitizedPending - playerId
-      case Action.AllIn =>
-        if (updated.bet > currentBet) activeIds - playerId
-        else sanitizedPending - playerId
-      case Action.Bet(_) => activeIds - playerId
-      case Action.Raise(_) => activeIds - playerId
+    val active = activePlayers(players)
+    val activeIds = active.map(_.id).toSet
+    val canActPlayers = players.filter(_.canAct)
+    val canActIds = canActPlayers.map(_.id).toSet
+
+    val sanitizedPending = (pending intersect activeIds) intersect canActIds
+    val sanitizedRaiseEligible = (raiseEligible intersect canActIds) - playerId
+
+    val updatedBet = updated.bet
+    val increasedBet = updatedBet > currentBet
+    val effectiveRaise = updatedBet - currentBet
+
+    val newCurrentBet = action match {
+      case Action.Bet(amount)   => amount
+      case Action.Raise(amount) => amount
+      case Action.AllIn if increasedBet => updatedBet
+      case _ => currentBet
     }
 
-    val (newCurrentBet, newMinRaise, newAggressor) = action match {
-      case Action.Bet(amount) =>
-        val raiseAmount = amount - currentBet
-        (amount, math.max(minRaise, raiseAmount), Some(playerId))
-      case Action.Raise(amount) =>
-        val raiseAmount = amount - currentBet
-        (amount, math.max(minRaise, raiseAmount), Some(playerId))
-      case Action.AllIn =>
-        val committed = updated.bet
-        val effectiveRaise = committed - currentBet
-        if (committed > currentBet) (committed, math.max(minRaise, effectiveRaise), Some(playerId))
-        else (currentBet, minRaise, lastAggressor)
-      case _ => (currentBet, minRaise, lastAggressor)
+    val playersNeedingToAct =
+      if (newCurrentBet > currentBet)
+        canActPlayers.filter(p => p.id != playerId && p.bet < newCurrentBet).map(_.id).toSet
+      else Set.empty[Int]
+
+    val basePending = sanitizedPending - playerId
+
+    val isAllInFullRaise = action match {
+      case Action.AllIn if increasedBet && effectiveRaise >= minRaise => true
+      case _ => false
+    }
+
+    val updatedPending = action match {
+      case Action.Bet(_) | Action.Raise(_) => playersNeedingToAct
+      case Action.AllIn if isAllInFullRaise => playersNeedingToAct
+      case Action.AllIn if increasedBet => basePending ++ playersNeedingToAct
+      case _ => basePending
+    }
+
+    val updatedMinRaise = action match {
+      case Action.Bet(amount)   => math.max(1, amount - currentBet)
+      case Action.Raise(amount) => math.max(1, amount - currentBet)
+      case Action.AllIn if isAllInFullRaise => math.max(1, effectiveRaise)
+      case _ => minRaise
+    }
+
+    val updatedAggressor = action match {
+      case Action.Bet(_) | Action.Raise(_) => Some(playerId)
+      case Action.AllIn if isAllInFullRaise => Some(playerId)
+      case _ => lastAggressor
+    }
+
+    val updatedRaiseEligible = {
+      val base = sanitizedRaiseEligible
+      action match {
+        case Action.Bet(_) | Action.Raise(_) => (canActIds - playerId)
+        case Action.AllIn if isAllInFullRaise => (canActIds - playerId)
+        case _ => base
+      }
     }
 
     copy(
       currentBet = newCurrentBet,
-      minRaise = math.max(1, newMinRaise),
-      lastAggressor = newAggressor,
-      pending = afterActionPending,
-      pointer = nextPointer
+      minRaise = math.max(1, updatedMinRaise),
+      lastAggressor = updatedAggressor,
+      pending = updatedPending,
+      pointer = nextPointer,
+      raiseEligible = updatedRaiseEligible intersect canActIds
     )
   }
 
@@ -88,7 +124,8 @@ object BettingRound {
       case -1 => 0
       case idx => idx
     }
-    BettingRound(currentBet, math.max(1, minRaise), None, pending, order, if (order.isEmpty) 0 else pointer)
+    val eligible = pending
+    BettingRound(currentBet, math.max(1, minRaise), None, pending, order, if (order.isEmpty) 0 else pointer, eligible)
   }
 
   private def orderingFrom(players: Vector[Player], firstToActId: Int): Vector[Int] = {

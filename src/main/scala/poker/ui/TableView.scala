@@ -6,7 +6,7 @@ import javafx.scene.layout.{BorderPane, HBox, Pane, StackPane, VBox}
 import javafx.scene.shape.Ellipse
 import javafx.scene.paint.{Color, RadialGradient, CycleMethod, Stop}
 import poker.engine.Card
-import poker.model.{GameEvent, Player, PlayerStatus, PotState, ShowdownResult, Street}
+import poker.model.{Action, GameEvent, Player, PlayerStatus, PotState, ShowdownResult, Street}
 
 import scala.collection.mutable
 import scala.collection.immutable.Set
@@ -64,6 +64,8 @@ final class TableView extends BorderPane {
   private var playersSnapshot: Vector[Player] = Vector.empty
   private var buttonIndex: Int = 0
   private var currentPlayerId: Option[Int] = None
+  private var lastActionByPlayer: Map[Int, String] = Map.empty
+
 
   tableRoot.getChildren.addAll(tableEllipse, chipsLayer, cardsView, seatLayer, overlay)
   setCenter(tableRoot)
@@ -83,10 +85,11 @@ final class TableView extends BorderPane {
       if (idx < players.size) {
         val player = players(idx)
         val statusText = player.status match {
-          case PlayerStatus.Active   => if (player.bet > 0) s"Mise: ${player.bet}" else "Pret"
-          case PlayerStatus.AllIn    => "All-in"
-          case PlayerStatus.Folded   => "Fold"
           case PlayerStatus.Eliminated => "Elimine"
+          case PlayerStatus.Folded     => lastActionByPlayer.getOrElse(player.id, "Fold")
+          case PlayerStatus.AllIn      => lastActionByPlayer.getOrElse(player.id, "All-in")
+          case PlayerStatus.Active     =>
+            lastActionByPlayer.getOrElse(player.id, if (player.bet > 0) s"Mise: ${player.bet}" else "Pret")
         }
 
         val isButton = idx == buttonIndex
@@ -134,7 +137,11 @@ final class TableView extends BorderPane {
 
   def appendLog(event: GameEvent): Unit = {
     event match {
-      case GameEvent.HandStarted(_)    => revealedPlayerIds = Set.empty
+      case GameEvent.HandStarted(_) =>
+        revealedPlayerIds = Set.empty
+        lastActionByPlayer = Map.empty
+      case GameEvent.PlayerActed(playerId, action) =>
+        lastActionByPlayer = lastActionByPlayer.updated(playerId, actionText(action))
       case GameEvent.Showdown(results) =>
         val nonZeroWinners = results.filter(_.share > 0).map(_.playerId)
         revealedPlayerIds = nonZeroWinners.toSet
@@ -142,7 +149,7 @@ final class TableView extends BorderPane {
     }
 
     val line = event match {
-      case GameEvent.PlayerActed(playerId, action) => s"Joueur $playerId ➔ $action"
+      case GameEvent.PlayerActed(playerId, action) => describeAction(playerId, action)
       case GameEvent.HandStarted(handId)           => s"Main $handId démarrée"
       case GameEvent.StreetAdvanced(next)          => s"Nouvelle street : ${next.toString}"
       case GameEvent.Message(text)                 => text
@@ -150,6 +157,23 @@ final class TableView extends BorderPane {
       case GameEvent.PotUpdated(potState)          => s"Pot total : ${potState.total}"
     }
     logArea.appendText(line + System.lineSeparator())
+  }
+
+  private def describeAction(playerId: Int, action: Action): String = {
+    val name = playersSnapshot.find(_.id == playerId).map(_.name).getOrElse(s"Joueur $playerId")
+    val text = actionText(action)
+    s"$name $text"
+  }
+
+  private def actionText(action: Action): String = actionLabel(action).toLowerCase
+
+  private def actionLabel(action: Action): String = action match {
+    case Action.Check         => "Check"
+    case Action.Fold          => "Fold"
+    case Action.Call          => "Call"
+    case Action.AllIn         => "All-in"
+    case Action.Bet(amount)   => s"Bet $amount"
+    case Action.Raise(amount) => s"Raise $amount"
   }
 
   private def describeShowdown(results: Vector[ShowdownResult]): String = {
@@ -425,4 +449,5 @@ final class TableView extends BorderPane {
     s"${player.name}$badge"
   }
 }
+
 

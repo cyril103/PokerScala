@@ -18,7 +18,7 @@ final class BotSpec extends AnyFunSuite {
     val hero = Player(id = 1, seat = 0, name = "Bot", isHuman = false, stack = 50, bet = 0, status = PlayerStatus.Active)
     val villain = Player(id = 2, seat = 1, name = "Villain", isHuman = false, stack = 200, bet = 50, status = PlayerStatus.Folded)
     val pot = poker.engine.PotManager(Map(2 -> 10))
-    val round = BettingRound(currentBet = 50, minRaise = 10, lastAggressor = Some(2), pending = Set(1), actionOrder = Vector(1), pointer = 0)
+    val round = BettingRound(currentBet = 50, minRaise = 10, lastAggressor = Some(2), pending = Set(1), actionOrder = Vector(1), pointer = 0, raiseEligible = Set(1))
 
     GameState(
       config = config,

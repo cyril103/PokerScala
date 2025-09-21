@@ -17,12 +17,43 @@ final class BettingRoundSpec extends AnyFunSuite {
       lastAggressor = Some(2),
       pending = Set(3),
       actionOrder = Vector(1, 2, 3),
-      pointer = 0
+      pointer = 0,
+      raiseEligible = Set(3)
     )
 
     val updatedRound = round.onAction(player3Before, Action.AllIn, player3After, playersAfter)
 
     assert(updatedRound.currentBet == player3After.bet)
     assert(updatedRound.pending == Set(1, 2))
+    assert(updatedRound.canPlayerRaise(1))
+    assert(updatedRound.canPlayerRaise(2))
+    assert(updatedRound.lastAggressor.contains(3))
+  }
+
+  test("short all-in keeps previous actors call-only") {
+    val player1 = Player(1, seat = 0, name = "Agg", isHuman = false, stack = 400, bet = 200, status = PlayerStatus.Active)
+    val player2 = Player(2, seat = 1, name = "Caller", isHuman = false, stack = 300, bet = 200, status = PlayerStatus.Active)
+    val player3Before = Player(3, seat = 2, name = "Short", isHuman = false, stack = 50, bet = 200, status = PlayerStatus.Active)
+    val player3After = player3Before.withBet(player3Before.bet + player3Before.stack)
+    val playersAfter = Vector(player1, player2, player3After)
+
+    val round = BettingRound(
+      currentBet = 200,
+      minRaise = 100,
+      lastAggressor = Some(1),
+      pending = Set(3),
+      actionOrder = Vector(1, 2, 3),
+      pointer = 0,
+      raiseEligible = Set(3)
+    )
+
+    val updatedRound = round.onAction(player3Before, Action.AllIn, player3After, playersAfter)
+
+    assert(updatedRound.currentBet == player3After.bet)
+    assert(updatedRound.minRaise == 100)
+    assert(updatedRound.pending == Set(1, 2))
+    assert(!updatedRound.canPlayerRaise(1))
+    assert(!updatedRound.canPlayerRaise(2))
+    assert(updatedRound.lastAggressor.contains(1))
   }
 }
