@@ -3,7 +3,7 @@ package poker.ui
 import javafx.geometry.{Insets, Pos}
 import javafx.scene.control.{Label, TextArea}
 import javafx.scene.layout.{BorderPane, HBox, Pane, StackPane, VBox}
-import javafx.scene.shape.Circle
+import javafx.scene.shape.Ellipse
 import poker.engine.Card
 import poker.model.{GameEvent, Player, PlayerStatus, PotState, ShowdownResult, Street}
 
@@ -12,10 +12,10 @@ import scala.collection.immutable.Set
 
 final class TableView extends BorderPane {
   private val tableRoot = new StackPane()
-  private val tableCircle = new Circle()
-  tableCircle.getStyleClass.add("table-circle")
-  tableCircle.centerXProperty().bind(tableRoot.widthProperty().divide(2))
-  tableCircle.centerYProperty().bind(tableRoot.heightProperty().divide(2))
+  private val tableEllipse = new Ellipse()
+  tableEllipse.getStyleClass.add("table-ellipse")
+  tableEllipse.centerXProperty().bind(tableRoot.widthProperty().divide(2))
+  tableEllipse.centerYProperty().bind(tableRoot.heightProperty().divide(2))
 
   private val seatLayer = new Pane()
   seatLayer.setPickOnBounds(false)
@@ -51,7 +51,7 @@ final class TableView extends BorderPane {
   private var buttonIndex: Int = 0
   private var currentPlayerId: Option[Int] = None
 
-  tableRoot.getChildren.addAll(tableCircle, cardsView, seatLayer, overlay)
+  tableRoot.getChildren.addAll(tableEllipse, cardsView, seatLayer, overlay)
   setCenter(tableRoot)
   BorderPane.setAlignment(tableRoot, Pos.CENTER)
 
@@ -241,38 +241,38 @@ final class TableView extends BorderPane {
     val height = tableRoot.getHeight
     if (width <= 0 || height <= 0) return
 
-    val circleRadius = math.min(width, height) * 0.32
-    tableCircle.setRadius(circleRadius)
+    val radiusX = math.max(200.0, width * 0.38)
+    val radiusY = math.max(160.0, height * 0.28)
+    tableEllipse.setRadiusX(radiusX)
+    tableEllipse.setRadiusY(radiusY)
 
     val centerX = width / 2
     val centerY = height / 2
     val totalSeats = playersSnapshot.size
-    val baseRadius = circleRadius + 110
-    val margin = 32.0
+    val margin = 36.0
 
     val visibleSeats = seatNodes.zipWithIndex.flatMap { case (seat, idx) =>
       if (idx < totalSeats && seat.container.isVisible) {
         seat.container.applyCss()
         seat.container.autosize()
         Some((seat, idx, seat.container.getWidth, seat.container.getHeight))
-      } else {
-        None
-      }
+      } else None
     }
 
     val maxSeatWidth = if (visibleSeats.nonEmpty) visibleSeats.map(_._3).max else 0.0
     val maxSeatHeight = if (visibleSeats.nonEmpty) visibleSeats.map(_._4).max else 0.0
-    val radiusLimitX = math.max(0.0, centerX - margin - maxSeatWidth / 2)
-    val radiusLimitY = math.max(0.0, centerY - margin - maxSeatHeight / 2)
-    val seatingRadius = math.max(0.0, math.min(baseRadius, math.min(radiusLimitX, radiusLimitY)))
+    val limitRadiusX = math.max(0.0, centerX - margin - maxSeatWidth / 2)
+    val limitRadiusY = math.max(0.0, centerY - margin - maxSeatHeight / 2)
+    val seatRadiusX = math.max(radiusX + 120.0, math.min(limitRadiusX, radiusX + 160.0))
+    val seatRadiusY = math.max(radiusY + 90.0, math.min(limitRadiusY, radiusY + 140.0))
 
     def clamp(value: Double, min: Double, max: Double): Double =
       if (max <= min) min else math.max(min, math.min(max, value))
 
     visibleSeats.foreach { case (seat, idx, nodeWidth, nodeHeight) =>
       val angle = (math.Pi * 1.5) + (idx.toDouble / totalSeats) * math.Pi * 2
-      val x = centerX + seatingRadius * math.cos(angle) - nodeWidth / 2
-      val y = centerY + seatingRadius * math.sin(angle) - nodeHeight / 2
+      val x = centerX + seatRadiusX * math.cos(angle) - nodeWidth / 2
+      val y = centerY + seatRadiusY * math.sin(angle) - nodeHeight / 2
       val clampedX = clamp(x, margin, width - nodeWidth - margin)
       val clampedY = clamp(y, margin, height - nodeHeight - margin)
       seat.container.relocate(clampedX, clampedY)
