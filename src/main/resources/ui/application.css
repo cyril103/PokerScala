@@ -168,3 +168,34 @@
 .table-log:disabled {
     -fx-opacity: 0.92;
 }
+
+.seat-chips {
+    -fx-spacing: 1;
+    -fx-alignment: center;
+}
+
+.pot-chips {
+    -fx-spacing: 1;
+    -fx-alignment: center;
+}
+
+.chip {
+    -fx-alignment: center;
+}
+
+.chip-small {
+    -fx-padding: 0;
+}
+
+.chip-large {
+    -fx-padding: 2;
+}
+
+.chip-label {
+    -fx-font-weight: 700;
+    -fx-font-size: 9px;
+}
+
+.chip-label-large {
+    -fx-font-size: 11px;
+}

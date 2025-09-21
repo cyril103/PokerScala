@@ -4,6 +4,7 @@ import javafx.geometry.{Insets, Pos}
 import javafx.scene.control.{Label, TextArea}
 import javafx.scene.layout.{BorderPane, HBox, Pane, StackPane, VBox}
 import javafx.scene.shape.Ellipse
+import javafx.scene.paint.{Color, RadialGradient, CycleMethod, Stop}
 import poker.engine.Card
 import poker.model.{GameEvent, Player, PlayerStatus, PotState, ShowdownResult, Street}
 
@@ -17,6 +18,12 @@ final class TableView extends BorderPane {
   tableEllipse.centerXProperty().bind(tableRoot.widthProperty().divide(2))
   tableEllipse.centerYProperty().bind(tableRoot.heightProperty().divide(2))
 
+  private val chipsLayer = new Pane()
+  chipsLayer.setPickOnBounds(false)
+  chipsLayer.setMouseTransparent(true)
+  chipsLayer.prefWidthProperty().bind(tableRoot.widthProperty())
+  chipsLayer.prefHeightProperty().bind(tableRoot.heightProperty())
+
   private val seatLayer = new Pane()
   seatLayer.setPickOnBounds(false)
   seatLayer.prefWidthProperty().bind(tableRoot.widthProperty())
@@ -24,6 +31,11 @@ final class TableView extends BorderPane {
 
   private val cardsView = new CardsView
   StackPane.setAlignment(cardsView, Pos.CENTER)
+
+  private val potChipsBox = new HBox(4)
+  potChipsBox.getStyleClass.add("pot-chips")
+  potChipsBox.setManaged(false)
+  chipsLayer.getChildren.add(potChipsBox)
 
   private val streetLabel = new Label("Street: PreFlop")
   private val potLabel = new Label("Pot: 0")
@@ -38,7 +50,7 @@ final class TableView extends BorderPane {
   logArea.getStyleClass.add("table-log")
   setBottom(logArea)
 
-  private case class SeatNode(container: VBox, dealerBadge: Label, nameLabel: Label, stackLabel: Label, cardsBox: HBox, statusLabel: Label)
+  private case class SeatNode(container: VBox, dealerBadge: Label, nameLabel: Label, stackLabel: Label, cardsBox: HBox, statusLabel: Label, chipsBox: HBox)
 
   private val seatNodes = mutable.ArrayBuffer.empty[SeatNode]
   private var revealedPlayerIds: Set[Int] = Set.empty
@@ -47,11 +59,13 @@ final class TableView extends BorderPane {
   private val placeholderCardText: String = "--"
   private val hiddenCardText: String = "??"
   private var boardCards: Vector[Card] = Vector.empty
+  private val chipDenominations: Vector[Int] = Vector(100, 25, 5, 1)
+
   private var playersSnapshot: Vector[Player] = Vector.empty
   private var buttonIndex: Int = 0
   private var currentPlayerId: Option[Int] = None
 
-  tableRoot.getChildren.addAll(tableEllipse, cardsView, seatLayer, overlay)
+  tableRoot.getChildren.addAll(tableEllipse, chipsLayer, cardsView, seatLayer, overlay)
   setCenter(tableRoot)
   BorderPane.setAlignment(tableRoot, Pos.CENTER)
 
@@ -83,6 +97,7 @@ final class TableView extends BorderPane {
         node.stackLabel.setText(s"Stack: ${player.stack}")
         node.statusLabel.setText(statusText)
         renderSeatCards(node.cardsBox, player)
+        renderSeatChips(node.chipsBox, player.bet)
 
         val classes = node.container.getStyleClass
         classes.setAll("seat-node")
@@ -96,6 +111,9 @@ final class TableView extends BorderPane {
         node.cardsBox.getChildren.clear()
         node.dealerBadge.setVisible(false)
         node.dealerBadge.setManaged(false)
+        node.chipsBox.setVisible(false)
+        node.chipsBox.setManaged(false)
+        node.chipsBox.getChildren.clear()
       }
     }
 
@@ -107,7 +125,10 @@ final class TableView extends BorderPane {
     boardCards = cards.flatMap(Card.parse)
   }
 
-  def updatePot(pot: PotState): Unit = potLabel.setText(s"Pot: ${pot.total}")
+  def updatePot(pot: PotState): Unit = {
+    potLabel.setText(s"Pot: ${pot.total}")
+    renderPotChips(pot.total)
+  }
 
   def updateStreet(street: Street): Unit = streetLabel.setText(s"Street: ${street.toString}")
 
@@ -170,7 +191,13 @@ final class TableView extends BorderPane {
         container.getStyleClass.add("seat-node")
         container.setManaged(false)
         seatLayer.getChildren.add(container)
-        seatNodes += SeatNode(container, dealer, name, stack, cards, status)
+
+        val chips = new HBox(2)
+        chips.getStyleClass.add("seat-chips")
+        chips.setManaged(false)
+        chipsLayer.getChildren.add(chips)
+
+        seatNodes += SeatNode(container, dealer, name, stack, cards, status, chips)
       }
     }
   }
@@ -185,6 +212,97 @@ final class TableView extends BorderPane {
   private def everyoneInHandAllIn: Boolean = {
     val inHand = playersSnapshot.filter(_.inHand)
     inHand.nonEmpty && inHand.forall(_.status == PlayerStatus.AllIn)
+  }
+
+  private def renderSeatChips(box: HBox, amount: Int): Unit =
+    renderChips(box, amount, large = false)
+
+  private def renderPotChips(amount: Int): Unit =
+    renderChips(potChipsBox, amount, large = true)
+
+  private def renderChips(container: HBox, amount: Int, large: Boolean): Unit = {
+    container.getChildren.clear()
+    if (amount <= 0) {
+      container.setVisible(false)
+      container.setManaged(false)
+    } else {
+      val chips = computeChips(amount)
+      chips.foreach { value =>
+        container.getChildren.add(createChipNode(value, large))
+      }
+      container.setVisible(true)
+      container.setManaged(true)
+    }
+  }
+
+  private def computeChips(amount: Int): Seq[Int] = {
+    var remaining = amount
+    val acc = scala.collection.mutable.ArrayBuffer.empty[Int]
+    chipDenominations.foreach { denom =>
+      val count = remaining / denom
+      if (count > 0) {
+        acc ++= Seq.fill(count)(denom)
+        remaining -= count * denom
+      }
+    }
+    if (acc.isEmpty && amount > 0) Seq(1) else acc.toSeq
+  }
+
+  private def createChipNode(value: Int, large: Boolean): StackPane = {
+    val radius = if (large) 13.0 else 9.0
+    val baseColor = chipColor(value)
+    val circle = new javafx.scene.shape.Circle(radius)
+    circle.setFill(chipGradient(baseColor))
+    circle.setStroke(darken(baseColor, 0.55))
+    circle.setStrokeWidth(if (large) 2.0 else 1.3)
+
+    val shine = new javafx.scene.shape.Circle(radius * 0.58)
+    shine.setFill(new RadialGradient(0, 0, 0.35, 0.3, 1.0, true, CycleMethod.NO_CYCLE,
+      new Stop(0.0, Color.rgb(255, 255, 255, 0.75)),
+      new Stop(0.7, Color.rgb(255, 255, 255, 0.0))))
+    shine.setTranslateX(-radius * 0.25)
+    shine.setTranslateY(-radius * 0.3)
+    shine.setMouseTransparent(true)
+
+    val label = new Label(chipLabel(value))
+    label.getStyleClass.add("chip-label")
+    if (large) label.getStyleClass.add("chip-label-large")
+    label.setMouseTransparent(true)
+    val textColor = if (baseColor.getBrightness < 0.55) Color.web("#ffffff") else Color.web("#111217")
+    label.setTextFill(textColor)
+
+    val chip = new StackPane(circle, shine, label)
+    chip.getStyleClass.add("chip")
+    if (large) chip.getStyleClass.add("chip-large") else chip.getStyleClass.add("chip-small")
+    chip
+  }
+
+  private def chipGradient(base: Color): RadialGradient = {
+    new RadialGradient(0, 0, 0.38, 0.35, 1.0, true, CycleMethod.NO_CYCLE,
+      new Stop(0.0, lighten(base, 0.45)),
+      new Stop(0.55, base),
+      new Stop(1.0, darken(base, 0.4)))
+  }
+
+  private def lighten(color: Color, factor: Double): Color =
+    color.interpolate(Color.WHITE, clamp01(factor))
+
+  private def darken(color: Color, factor: Double): Color =
+    color.interpolate(Color.BLACK, clamp01(factor))
+
+  private def clamp01(value: Double): Double =
+    math.max(0.0, math.min(1.0, value))
+
+  private def chipColor(value: Int): Color = value match {
+    case v if v >= 100 => Color.web("#0000ffff")
+    case v if v >= 25  => Color.web("#00ff59ff")
+    case v if v >= 5   => Color.web("#ff0000ff")
+    case _             => Color.web("#ffffffff")
+  }
+
+  private def chipLabel(value: Int): String = value match {
+    case v if v >= 1000 => s"${v / 1000}K"
+    case v => v.toString
   }
 
   private def renderSeatCards(box: HBox, player: Player): Unit = {
@@ -271,12 +389,35 @@ final class TableView extends BorderPane {
 
     visibleSeats.foreach { case (seat, idx, nodeWidth, nodeHeight) =>
       val angle = (math.Pi * 1.5) + (idx.toDouble / totalSeats) * math.Pi * 2
-      val x = centerX + seatRadiusX * math.cos(angle) - nodeWidth / 2
-      val y = centerY + seatRadiusY * math.sin(angle) - nodeHeight / 2
-      val clampedX = clamp(x, margin, width - nodeWidth - margin)
-      val clampedY = clamp(y, margin, height - nodeHeight - margin)
-      seat.container.relocate(clampedX, clampedY)
+      val seatX = centerX + seatRadiusX * math.cos(angle) - nodeWidth / 2
+      val seatY = centerY + seatRadiusY * math.sin(angle) - nodeHeight / 2
+      val clampedSeatX = clamp(seatX, margin, width - nodeWidth - margin)
+      val clampedSeatY = clamp(seatY, margin, height - nodeHeight - margin)
+      seat.container.relocate(clampedSeatX, clampedSeatY)
+
+      seat.chipsBox.applyCss()
+      seat.chipsBox.autosize()
+      val chipWidth = math.max(seat.chipsBox.getWidth, 40.0)
+      val chipHeight = math.max(seat.chipsBox.getHeight, 20.0)
+      val seatCenterX = clampedSeatX + nodeWidth / 2
+      val seatCenterY = clampedSeatY + nodeHeight / 2
+      val dx = seatCenterX - centerX
+      val dy = seatCenterY - centerY
+      val distance = math.hypot(dx, dy)
+      val targetDistance = math.max(0.0, distance - 120.0)
+      val ratio = if (distance == 0) 0.0 else targetDistance / distance
+      val chipCenterX = centerX + dx * ratio
+      val chipCenterY = centerY + dy * ratio
+      val chipX = clamp(chipCenterX - chipWidth / 2, margin, width - chipWidth - margin)
+      val chipY = clamp(chipCenterY - chipHeight / 2, margin, height - chipHeight - margin)
+      seat.chipsBox.relocate(chipX, chipY)
     }
+
+    potChipsBox.applyCss()
+    potChipsBox.autosize()
+    val potWidth = potChipsBox.getWidth
+    val potHeight = potChipsBox.getHeight
+    potChipsBox.relocate(centerX - potWidth / 2, centerY + 20 - potHeight / 2)
   }
 
   private def formatName(player: Player, isButton: Boolean): String = {
