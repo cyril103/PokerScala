@@ -15,6 +15,7 @@ final class MainApp extends Application {
   private var config: Config = Config()
   private var dealer: Dealer = _
   private var bots: Map[Int, Bot] = Map.empty
+  private var botProfiles: Map[Int, AIProfile] = Map.empty
   private var humanId: Int = 1
   private var botTimer: Option[PauseTransition] = None
   private var primaryStage: Stage = _
@@ -31,6 +32,7 @@ final class MainApp extends Application {
     settingsDialog.showAndWait().ifPresent(cfg => config = cfg)
 
     val players = createPlayers(config)
+    botProfiles = assignBotProfiles(players)
     humanId = players.find(_.isHuman).map(_.id).getOrElse(1)
     dealer = new Dealer(GameState.initial(config, players))
     syncBotsWithState()
@@ -289,9 +291,23 @@ final class MainApp extends Application {
     val aliveIds = nonHumanPlayers.map(_.id).toSet
     val retained = bots.filter { case (id, _) => aliveIds.contains(id) }
     val missing = nonHumanPlayers.collect {
-      case p if !retained.contains(p.id) => p.id -> new Bot(p.id, AIProfile.default, config)
+      case p if !retained.contains(p.id) =>
+        val profile = botProfiles.getOrElse(p.id, AIProfile.default)
+        p.id -> new Bot(p.id, profile, config)
     }
     bots = retained ++ missing
+  }
+
+  private def assignBotProfiles(players: Vector[Player]): Map[Int, AIProfile] = {
+    val available = AIProfile.presets.map(_._2)
+    if (available.isEmpty) Map.empty
+    else {
+      val nonHuman = players.filterNot(_.isHuman).sortBy(_.seat)
+      nonHuman.zipWithIndex.map { case (player, index) =>
+        val profile = available(index % available.length)
+        player.id -> profile
+      }.toMap
+    }
   }
 
   private def createPlayers(config: Config): Vector[Player] = {
