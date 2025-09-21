@@ -37,7 +37,7 @@ final class TableView extends BorderPane {
   logArea.getStyleClass.add("table-log")
   setBottom(logArea)
 
-  private case class SeatNode(container: VBox, nameLabel: Label, stackLabel: Label, cardsBox: HBox, statusLabel: Label)
+  private case class SeatNode(container: VBox, dealerBadge: Label, nameLabel: Label, stackLabel: Label, cardsBox: HBox, statusLabel: Label)
 
   private val seatNodes = mutable.ArrayBuffer.empty[SeatNode]
   private val redSuits: Set[Char] = Set('\u2665', '\u2666', 'H', 'D')
@@ -71,14 +71,18 @@ final class TableView extends BorderPane {
           case PlayerStatus.Eliminated => "Elimine"
         }
 
-        node.nameLabel.setText(formatName(player, idx == buttonIndex))
+        val isButton = idx == buttonIndex
+
+        node.dealerBadge.setVisible(isButton)
+        node.dealerBadge.setManaged(isButton)
+        node.nameLabel.setText(formatName(player, isButton))
         node.stackLabel.setText(s"Stack: ${player.stack}")
         node.statusLabel.setText(statusText)
         renderSeatCards(node.cardsBox, player)
 
         val classes = node.container.getStyleClass
         classes.setAll("seat-node")
-        if (idx == buttonIndex) classes.add("button-seat")
+        if (isButton) classes.add("button-seat")
         if (currentPlayerId.contains(player.id)) classes.add("active-seat")
         if (player.status == PlayerStatus.Folded || player.status == PlayerStatus.Eliminated) classes.add("folded-seat")
 
@@ -86,6 +90,8 @@ final class TableView extends BorderPane {
       } else {
         node.container.setVisible(false)
         node.cardsBox.getChildren.clear()
+        node.dealerBadge.setVisible(false)
+        node.dealerBadge.setManaged(false)
       }
     }
 
@@ -114,8 +120,19 @@ final class TableView extends BorderPane {
     if (seatNodes.size < required) {
       val missing = required - seatNodes.size
       (0 until missing).foreach { _ =>
+        val dealer = new Label("BTN")
+        dealer.getStyleClass.add("dealer-button")
+        dealer.setVisible(false)
+        dealer.setManaged(false)
+        dealer.setMouseTransparent(true)
+
         val name = new Label()
         name.getStyleClass.add("seat-name")
+
+        val nameRow = new HBox(6, dealer, name)
+        nameRow.setAlignment(Pos.CENTER)
+        nameRow.getStyleClass.add("seat-header")
+
         val stack = new Label()
         stack.getStyleClass.add("seat-stack")
         val cards = new HBox(6)
@@ -125,11 +142,11 @@ final class TableView extends BorderPane {
         val status = new Label()
         status.getStyleClass.add("seat-status")
 
-        val container = new VBox(4, name, stack, cards, status)
+        val container = new VBox(4, nameRow, stack, cards, status)
         container.getStyleClass.add("seat-node")
         container.setManaged(false)
         seatLayer.getChildren.add(container)
-        seatNodes += SeatNode(container, name, stack, cards, status)
+        seatNodes += SeatNode(container, dealer, name, stack, cards, status)
       }
     }
   }
@@ -181,20 +198,36 @@ final class TableView extends BorderPane {
 
     val centerX = width / 2
     val centerY = height / 2
-    val seatingRadius = circleRadius + 110
     val totalSeats = playersSnapshot.size
+    val baseRadius = circleRadius + 110
+    val margin = 32.0
 
-    seatNodes.zipWithIndex.foreach { case (seat, idx) =>
+    val visibleSeats = seatNodes.zipWithIndex.flatMap { case (seat, idx) =>
       if (idx < totalSeats && seat.container.isVisible) {
-        val angle = (math.Pi * 1.5) + (idx.toDouble / totalSeats) * math.Pi * 2
         seat.container.applyCss()
         seat.container.autosize()
-        val nodeWidth = seat.container.getWidth
-        val nodeHeight = seat.container.getHeight
-        val x = centerX + seatingRadius * math.cos(angle) - nodeWidth / 2
-        val y = centerY + seatingRadius * math.sin(angle) - nodeHeight / 2
-        seat.container.relocate(x, y)
+        Some((seat, idx, seat.container.getWidth, seat.container.getHeight))
+      } else {
+        None
       }
+    }
+
+    val maxSeatWidth = if (visibleSeats.nonEmpty) visibleSeats.map(_._3).max else 0.0
+    val maxSeatHeight = if (visibleSeats.nonEmpty) visibleSeats.map(_._4).max else 0.0
+    val radiusLimitX = math.max(0.0, centerX - margin - maxSeatWidth / 2)
+    val radiusLimitY = math.max(0.0, centerY - margin - maxSeatHeight / 2)
+    val seatingRadius = math.max(0.0, math.min(baseRadius, math.min(radiusLimitX, radiusLimitY)))
+
+    def clamp(value: Double, min: Double, max: Double): Double =
+      if (max <= min) min else math.max(min, math.min(max, value))
+
+    visibleSeats.foreach { case (seat, idx, nodeWidth, nodeHeight) =>
+      val angle = (math.Pi * 1.5) + (idx.toDouble / totalSeats) * math.Pi * 2
+      val x = centerX + seatingRadius * math.cos(angle) - nodeWidth / 2
+      val y = centerY + seatingRadius * math.sin(angle) - nodeHeight / 2
+      val clampedX = clamp(x, margin, width - nodeWidth - margin)
+      val clampedY = clamp(y, margin, height - nodeHeight - margin)
+      seat.container.relocate(clampedX, clampedY)
     }
   }
 

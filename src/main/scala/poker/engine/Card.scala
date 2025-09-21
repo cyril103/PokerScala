@@ -1,10 +1,10 @@
 package poker.engine
 
 enum Suit(val code: Char, val symbol: Char) {
-  case Clubs extends Suit('C', '♣')
-  case Diamonds extends Suit('D', '♦')
-  case Hearts extends Suit('H', '♥')
-  case Spades extends Suit('S', '♠')
+  case Clubs extends Suit('C', '\u2663')
+  case Diamonds extends Suit('D', '\u2666')
+  case Hearts extends Suit('H', '\u2665')
+  case Spades extends Suit('S', '\u2660')
 }
 
 object Suit {
@@ -46,7 +46,7 @@ final case class Card(rank: Rank, suit: Suit) {
 }
 
 object Card {
-  private val Pattern = "([2-9TJQKA])([CDHS♣♦♥♠])".r
+  private val Pattern = s"([2-9TJQKA])([CDHS${Suit.Clubs.symbol}${Suit.Diamonds.symbol}${Suit.Hearts.symbol}${Suit.Spades.symbol}])".r
 
   def parse(str: String): Option[Card] = str.trim.toUpperCase match {
     case Pattern(rankLabel, suitLabel) =>

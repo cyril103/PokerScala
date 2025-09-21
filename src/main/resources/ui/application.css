@@ -76,6 +76,24 @@
     -fx-text-fill: rgba(255, 255, 255, 0.4);
 }
 
+.seat-header {
+    -fx-alignment: center;
+    -fx-spacing: 6;
+}
+
+.dealer-button {
+    -fx-background-color: linear-gradient(#ffd166, #fcbf49);
+    -fx-text-fill: #1f1f1f;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 2 8;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: rgba(0, 0, 0, 0.45);
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 10, 0.3, 0, 2);
+}
+
 .seat-node {
     -fx-background-color: rgba(18, 18, 18, 0.82);
     -fx-background-radius: 16;

@@ -576,3 +576,46 @@ INFO: Unsupported notification method: $/setTrace
 2025.09.21 10:29:18 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\Assets.scala. Using presentation compiler with project's scala-library version: 3.3.6
 2025.09.21 10:29:18 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\Assets.scala. Using presentation compiler with project's scala-library version: 3.3.6
 2025.09.21 10:36:19 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\Assets.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:36:47 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\Assets.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:36:47 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\Assets.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:39:52 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\Assets.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:39:52 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\Assets.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:39:59 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\Assets.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:39:59 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+sept. 21, 2025 10:40:00 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 42
+2025.09.21 10:40:00 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:01 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:01 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:06 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:07 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:15 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:16 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:17 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:17 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:18 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:18 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+sept. 21, 2025 10:40:19 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 77
+2025.09.21 10:40:20 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:20 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:20 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:20 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:21 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:21 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:21 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:48 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:40:48 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:41:01 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:41:26 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\ui\TableView.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:49:05 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\Card.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:49:06 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\Card.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:49:05 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\Card.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:49:19 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\Card.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 10:49:32 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\Card.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 11:00:20 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\Card.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 11:04:33 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\Card.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 11:04:33 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\Card.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 11:04:39 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\Card.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 11:04:39 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\Card.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2025.09.21 11:07:56 INFO  no build target found for D:\JeuIA\PokerScala\src\main\scala\poker\engine\Card.scala. Using presentation compiler with project's scala-library version: 3.3.6
