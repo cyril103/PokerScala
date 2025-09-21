@@ -161,8 +161,17 @@ final class TableView extends BorderPane {
     }
   }
 
-  private def shouldReveal(player: Player): Boolean =
-    player.isHuman || revealedPlayerIds.contains(player.id) || player.status == PlayerStatus.AllIn
+  private def shouldReveal(player: Player): Boolean = {
+    if (player.isHuman) true
+    else if (revealedPlayerIds.contains(player.id)) true
+    else if (player.status == PlayerStatus.AllIn) everyoneInHandAllIn
+    else false
+  }
+
+  private def everyoneInHandAllIn: Boolean = {
+    val inHand = playersSnapshot.filter(_.inHand)
+    inHand.nonEmpty && inHand.forall(_.status == PlayerStatus.AllIn)
+  }
 
   private def renderSeatCards(box: HBox, player: Player): Unit = {
     box.getChildren.clear()
