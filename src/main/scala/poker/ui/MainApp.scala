@@ -89,7 +89,7 @@ final class MainApp extends Application {
       case GameEvent.HandStarted(_)           => syncBotsWithState()
       case GameEvent.StreetAdvanced(street)   => tableView.updateStreet(street)
       case GameEvent.PotUpdated(pot)          => tableView.updatePot(pot)
-      case GameEvent.Showdown(_)              => scheduleNextHand()
+      case GameEvent.Showdown(_)              => scheduleNextHand(Some(config.showdownPauseMs))
       case _                                  => ()
     }
   }
@@ -201,9 +201,11 @@ final class MainApp extends Application {
     }
   }
 
-  private def scheduleNextHand(): Unit = {
+  private def scheduleNextHand(overrideDelayMs: Option[Int] = None): Unit = {
     stopBotTimer()
-    val delay = math.max(500, config.uiAnimationMs).toDouble
+    val baseDelay = math.max(500, config.uiAnimationMs).toDouble
+    val targetDelay = overrideDelayMs.map(_.toDouble).getOrElse(baseDelay)
+    val delay = math.max(baseDelay, targetDelay)
     val pause = new PauseTransition(Duration.millis(delay))
     pause.setOnFinished(_ => {
       val events = dealer.startHand()

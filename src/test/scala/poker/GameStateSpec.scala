@@ -13,6 +13,7 @@ final class GameStateSpec extends AnyFunSuite {
     numBots = 1,
     mcIterations = 100,
     decisionTimeMs = 10,
+    showdownPauseMs = 0,
     rngSeed = Some(42L)
   )
 

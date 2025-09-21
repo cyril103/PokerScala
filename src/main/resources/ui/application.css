@@ -76,6 +76,12 @@
     -fx-text-fill: rgba(255, 255, 255, 0.4);
 }
 
+.seat-card-hidden {
+    -fx-background-color: linear-gradient(#1b2a4b, #0f1a33);
+    -fx-border-color: rgba(255, 255, 255, 0.35);
+    -fx-text-fill: rgba(255, 255, 255, 0.8);
+}
+
 .seat-header {
     -fx-alignment: center;
     -fx-spacing: 6;

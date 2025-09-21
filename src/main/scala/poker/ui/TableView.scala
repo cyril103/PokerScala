@@ -40,9 +40,11 @@ final class TableView extends BorderPane {
   private case class SeatNode(container: VBox, dealerBadge: Label, nameLabel: Label, stackLabel: Label, cardsBox: HBox, statusLabel: Label)
 
   private val seatNodes = mutable.ArrayBuffer.empty[SeatNode]
+  private var revealedPlayerIds: Set[Int] = Set.empty
   private val redSuits: Set[Char] = Set('\u2665', '\u2666', 'H', 'D')
   private val blackSuits: Set[Char] = Set('\u2663', '\u2660', 'C', 'S')
   private val placeholderCardText: String = "--"
+  private val hiddenCardText: String = "??"
   private var playersSnapshot: Vector[Player] = Vector.empty
   private var buttonIndex: Int = 0
   private var currentPlayerId: Option[Int] = None
@@ -105,6 +107,12 @@ final class TableView extends BorderPane {
   def updateStreet(street: Street): Unit = streetLabel.setText(s"Street: ${street.toString}")
 
   def appendLog(event: GameEvent): Unit = {
+    event match {
+      case GameEvent.HandStarted(_)    => revealedPlayerIds = Set.empty
+      case GameEvent.Showdown(results) => revealedPlayerIds = results.map(_.playerId).toSet
+      case _                           => ()
+    }
+
     val line = event match {
       case GameEvent.PlayerActed(playerId, action) => s"Joueur $playerId ➔ $action"
       case GameEvent.HandStarted(handId)           => s"Main $handId démarrée"
@@ -151,13 +159,21 @@ final class TableView extends BorderPane {
     }
   }
 
+  private def shouldReveal(player: Player): Boolean =
+    player.isHuman || revealedPlayerIds.contains(player.id) || player.status == PlayerStatus.AllIn
+
   private def renderSeatCards(box: HBox, player: Player): Unit = {
     box.getChildren.clear()
-    val cardStrings = player.holeCards.map(_.toString)
-    val expected = math.max(cardStrings.size, 2)
+    val reveal = shouldReveal(player)
+    val cardStrings = if (reveal) player.holeCards.map(_.toString) else Vector.empty[String]
+    val expected = 2
+
     (0 until expected).foreach { idx =>
       val node =
-        if (idx < cardStrings.size) createSeatCard(cardStrings(idx))
+        if (reveal) {
+          if (idx < cardStrings.size) createSeatCard(cardStrings(idx))
+          else placeholderCard()
+        } else if (player.holeCards.nonEmpty) hiddenCard()
         else placeholderCard()
       box.getChildren.add(node)
     }
@@ -176,6 +192,13 @@ final class TableView extends BorderPane {
     val label = new Label(placeholderCardText)
     label.getStyleClass.add("seat-card")
     label.getStyleClass.add("seat-card-placeholder")
+    label
+  }
+
+  private def hiddenCard(): Label = {
+    val label = new Label(hiddenCardText)
+    label.getStyleClass.add("seat-card")
+    label.getStyleClass.add("seat-card-hidden")
     label
   }
 

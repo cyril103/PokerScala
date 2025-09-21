@@ -17,6 +17,7 @@ final class SettingsDialog(initial: Config) extends Dialog[Config] {
   private val mcField = new TextField(initial.mcIterations.toString)
   private val decisionField = new TextField(initial.decisionTimeMs.toString)
   private val botDelayField = new TextField(initial.minBotDelayMs.toString)
+  private val showdownDelayField = new TextField(initial.showdownPauseMs.toString)
   private val seedField = new TextField(initial.rngSeed.map(_.toString).getOrElse(""))
 
   private val grid = new GridPane()
@@ -34,6 +35,7 @@ final class SettingsDialog(initial: Config) extends Dialog[Config] {
   addRow("MC Iterations", mcField)
   addRow("Decision Time ms", decisionField)
   addRow("Min Bot Delay ms", botDelayField)
+  addRow("Showdown Pause ms", showdownDelayField)
   addRow("Seed", seedField)
 
   getDialogPane.setContent(grid)
@@ -58,6 +60,7 @@ final class SettingsDialog(initial: Config) extends Dialog[Config] {
       mcIterations = parseInt(mcField.getText, initial.mcIterations),
       decisionTimeMs = parseInt(decisionField.getText, initial.decisionTimeMs),
       minBotDelayMs = parseInt(botDelayField.getText, initial.minBotDelayMs),
+      showdownPauseMs = parseInt(showdownDelayField.getText, initial.showdownPauseMs),
       rngSeed = parseLong(seedField.getText).orElse(initial.rngSeed),
       uiAnimationMs = initial.uiAnimationMs
     )

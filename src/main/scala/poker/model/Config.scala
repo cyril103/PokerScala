@@ -11,11 +11,13 @@ final case class Config(
   minBotDelayMs: Int = 275,
   rngSeed: Option[Long] = Some(42L),
   uiAnimationMs: Int = 300,
+  showdownPauseMs: Int = 2500,
   maxPlayers: Int = 9
 ) {
   require(minBotDelayMs >= 0, "minBotDelayMs must be non-negative")
   require(numBots >= 1 && numBots <= 8, "numBots must be between 1 and 8")
   require(startingStack > 0, "starting stack must be positive")
   require(smallBlind > 0 && bigBlind > smallBlind, "blinds must be positive and bigBlind > smallBlind")
+  require(showdownPauseMs >= 0, "showdownPauseMs must be non-negative")
 }
 
