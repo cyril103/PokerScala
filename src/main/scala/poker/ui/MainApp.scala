@@ -76,6 +76,7 @@ final class MainApp extends Application {
         handleHumanAction(action)
       }
     })
+    controlsView.onAllIn(() => handleHumanAction(Action.AllIn))
   }
 
   private def handleHumanAction(action: Action): Unit = {
