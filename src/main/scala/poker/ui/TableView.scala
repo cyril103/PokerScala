@@ -4,7 +4,8 @@ import javafx.geometry.{Insets, Pos}
 import javafx.scene.control.{Label, TextArea}
 import javafx.scene.layout.{BorderPane, HBox, Pane, StackPane, VBox}
 import javafx.scene.shape.Circle
-import poker.model.{GameEvent, Player, PlayerStatus, PotState, Street}
+import poker.engine.Card
+import poker.model.{GameEvent, Player, PlayerStatus, PotState, ShowdownResult, Street}
 
 import scala.collection.mutable
 import scala.collection.immutable.Set
@@ -45,6 +46,7 @@ final class TableView extends BorderPane {
   private val blackSuits: Set[Char] = Set('\u2663', '\u2660', 'C', 'S')
   private val placeholderCardText: String = "--"
   private val hiddenCardText: String = "??"
+  private var boardCards: Vector[Card] = Vector.empty
   private var playersSnapshot: Vector[Player] = Vector.empty
   private var buttonIndex: Int = 0
   private var currentPlayerId: Option[Int] = None
@@ -100,7 +102,10 @@ final class TableView extends BorderPane {
     layoutSeats()
   }
 
-  def updateBoard(cards: Vector[String]): Unit = cardsView.update(cards)
+  def updateBoard(cards: Vector[String]): Unit = {
+    cardsView.update(cards)
+    boardCards = cards.flatMap(Card.parse)
+  }
 
   def updatePot(pot: PotState): Unit = potLabel.setText(s"Pot: ${pot.total}")
 
@@ -120,10 +125,19 @@ final class TableView extends BorderPane {
       case GameEvent.HandStarted(handId)           => s"Main $handId démarrée"
       case GameEvent.StreetAdvanced(next)          => s"Nouvelle street : ${next.toString}"
       case GameEvent.Message(text)                 => text
-      case GameEvent.Showdown(results)             => s"Showdown : ${results.map(r => s"${r.playerId} gagne ${r.share}").mkString(", ")}"
+      case GameEvent.Showdown(results)             => describeShowdown(results)
       case GameEvent.PotUpdated(potState)          => s"Pot total : ${potState.total}"
     }
     logArea.appendText(line + System.lineSeparator())
+  }
+
+  private def describeShowdown(results: Vector[ShowdownResult]): String = {
+    val parts = results.map { r =>
+      val desc = HandDescription.describe(r, boardCards)
+      val gain = if (r.share > 0) s"remporte ${r.share}" else "ne remporte rien"
+      s"${r.playerId} $gain — $desc"
+    }
+    s"Showdown : ${parts.mkString(", ")}"
   }
 
   private def ensureSeatCount(required: Int): Unit = {
