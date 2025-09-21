@@ -1,6 +1,0 @@
-{
-  "editor.fontSize": 10,
-  "files.watcherExclude": {
-    "**/target": true
-  }
-}
