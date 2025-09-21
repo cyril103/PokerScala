@@ -43,6 +43,39 @@
     -fx-text-fill: #111;
 }
 
+.board-card.card-red, .seat-card.card-red {
+    -fx-text-fill: #c0392b;
+}
+
+.board-card.card-black, .seat-card.card-black {
+    -fx-text-fill: #1a1a1a;
+}
+
+.seat-cards {
+    -fx-spacing: 6;
+    -fx-alignment: center;
+}
+
+.seat-card {
+    -fx-min-width: 34px;
+    -fx-min-height: 44px;
+    -fx-alignment: center;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-background-color: linear-gradient(#ffffff, #f0f0f0);
+    -fx-border-color: #1a1a1a;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 6 8;
+    -fx-text-fill: #111;
+}
+
+.seat-card-placeholder {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+    -fx-text-fill: rgba(255, 255, 255, 0.4);
+}
+
 .seat-node {
     -fx-background-color: rgba(18, 18, 18, 0.82);
     -fx-background-radius: 16;

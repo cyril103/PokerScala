@@ -2,11 +2,12 @@ package poker.ui
 
 import javafx.geometry.{Insets, Pos}
 import javafx.scene.control.{Label, TextArea}
-import javafx.scene.layout.{BorderPane, Pane, StackPane, VBox}
+import javafx.scene.layout.{BorderPane, HBox, Pane, StackPane, VBox}
 import javafx.scene.shape.Circle
 import poker.model.{GameEvent, Player, PlayerStatus, PotState, Street}
 
 import scala.collection.mutable
+import scala.collection.immutable.Set
 
 final class TableView extends BorderPane {
   private val tableRoot = new StackPane()
@@ -36,9 +37,12 @@ final class TableView extends BorderPane {
   logArea.getStyleClass.add("table-log")
   setBottom(logArea)
 
-  private case class SeatNode(container: VBox, nameLabel: Label, stackLabel: Label, statusLabel: Label)
+  private case class SeatNode(container: VBox, nameLabel: Label, stackLabel: Label, cardsBox: HBox, statusLabel: Label)
 
   private val seatNodes = mutable.ArrayBuffer.empty[SeatNode]
+  private val redSuits: Set[Char] = Set('\u2665', '\u2666', 'H', 'D')
+  private val blackSuits: Set[Char] = Set('\u2663', '\u2660', 'C', 'S')
+  private val placeholderCardText: String = "--"
   private var playersSnapshot: Vector[Player] = Vector.empty
   private var buttonIndex: Int = 0
   private var currentPlayerId: Option[Int] = None
@@ -60,17 +64,17 @@ final class TableView extends BorderPane {
     seatNodes.zipWithIndex.foreach { case (node, idx) =>
       if (idx < players.size) {
         val player = players(idx)
-        val cards = if (player.holeCards.nonEmpty) player.holeCards.map(_.toString).mkString(" ") else "··"
         val statusText = player.status match {
-          case PlayerStatus.Active   => if (player.bet > 0) s"Mise: ${player.bet}" else "Prêt"
+          case PlayerStatus.Active   => if (player.bet > 0) s"Mise: ${player.bet}" else "Pret"
           case PlayerStatus.AllIn    => "All-in"
           case PlayerStatus.Folded   => "Fold"
-          case PlayerStatus.Eliminated => "Eliminé"
+          case PlayerStatus.Eliminated => "Elimine"
         }
 
         node.nameLabel.setText(formatName(player, idx == buttonIndex))
         node.stackLabel.setText(s"Stack: ${player.stack}")
-        node.statusLabel.setText(s"${statusText}  ${cards}")
+        node.statusLabel.setText(statusText)
+        renderSeatCards(node.cardsBox, player)
 
         val classes = node.container.getStyleClass
         classes.setAll("seat-node")
@@ -81,6 +85,7 @@ final class TableView extends BorderPane {
         node.container.setVisible(true)
       } else {
         node.container.setVisible(false)
+        node.cardsBox.getChildren.clear()
       }
     }
 
@@ -113,15 +118,54 @@ final class TableView extends BorderPane {
         name.getStyleClass.add("seat-name")
         val stack = new Label()
         stack.getStyleClass.add("seat-stack")
+        val cards = new HBox(6)
+        cards.setAlignment(Pos.CENTER)
+        cards.getStyleClass.add("seat-cards")
+
         val status = new Label()
         status.getStyleClass.add("seat-status")
 
-        val container = new VBox(4, name, stack, status)
+        val container = new VBox(4, name, stack, cards, status)
         container.getStyleClass.add("seat-node")
         container.setManaged(false)
         seatLayer.getChildren.add(container)
-        seatNodes += SeatNode(container, name, stack, status)
+        seatNodes += SeatNode(container, name, stack, cards, status)
       }
+    }
+  }
+
+  private def renderSeatCards(box: HBox, player: Player): Unit = {
+    box.getChildren.clear()
+    val cardStrings = player.holeCards.map(_.toString)
+    val expected = math.max(cardStrings.size, 2)
+    (0 until expected).foreach { idx =>
+      val node =
+        if (idx < cardStrings.size) createSeatCard(cardStrings(idx))
+        else placeholderCard()
+      box.getChildren.add(node)
+    }
+    box.setVisible(true)
+    box.setManaged(true)
+  }
+
+  private def createSeatCard(card: String): Label = {
+    val label = new Label(card)
+    label.getStyleClass.add("seat-card")
+    suitClass(card).foreach(label.getStyleClass.add)
+    label
+  }
+
+  private def placeholderCard(): Label = {
+    val label = new Label(placeholderCardText)
+    label.getStyleClass.add("seat-card")
+    label.getStyleClass.add("seat-card-placeholder")
+    label
+  }
+
+  private def suitClass(card: String): Option[String] = {
+    card.reverseIterator.collectFirst {
+      case ch if redSuits.contains(ch)   => "card-red"
+      case ch if blackSuits.contains(ch) => "card-black"
     }
   }
 
@@ -159,5 +203,4 @@ final class TableView extends BorderPane {
     s"${player.name}$badge"
   }
 }
-
 

@@ -1,12 +1,20 @@
 package poker.engine
 
-import scala.util.Try
+enum Suit(val code: Char, val symbol: Char) {
+  case Clubs extends Suit('C', '♣')
+  case Diamonds extends Suit('D', '♦')
+  case Hearts extends Suit('H', '♥')
+  case Spades extends Suit('S', '♠')
+}
 
-enum Suit(val symbol: Char) {
-  case Clubs extends Suit('C')
-  case Diamonds extends Suit('D')
-  case Hearts extends Suit('H')
-  case Spades extends Suit('S')
+object Suit {
+  private val byCode: Map[Char, Suit] = values.map(s => (s.code, s)).toMap
+  private val bySymbol: Map[Char, Suit] = values.map(s => (s.symbol, s)).toMap
+
+  def fromChar(ch: Char): Option[Suit] = {
+    val normalized = ch.toUpper
+    byCode.get(normalized).orElse(bySymbol.get(ch))
+  }
 }
 
 enum Rank(val value: Int, val label: String) {
@@ -38,7 +46,7 @@ final case class Card(rank: Rank, suit: Suit) {
 }
 
 object Card {
-  private val Pattern = "([2-9TJQKA])([CDHS])".r
+  private val Pattern = "([2-9TJQKA])([CDHS♣♦♥♠])".r
 
   def parse(str: String): Option[Card] = str.trim.toUpperCase match {
     case Pattern(rankLabel, suitLabel) =>
@@ -49,11 +57,5 @@ object Card {
     case _ => None
   }
 
-  private def parseSuit(ch: Char): Option[Suit] = ch match {
-    case 'C' => Some(Suit.Clubs)
-    case 'D' => Some(Suit.Diamonds)
-    case 'H' => Some(Suit.Hearts)
-    case 'S' => Some(Suit.Spades)
-    case _   => None
-  }
+  private def parseSuit(ch: Char): Option[Suit] = Suit.fromChar(ch)
 }
