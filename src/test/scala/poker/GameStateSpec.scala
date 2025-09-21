@@ -14,6 +14,7 @@ final class GameStateSpec extends AnyFunSuite {
     mcIterations = 100,
     decisionTimeMs = 10,
     showdownPauseMs = 0,
+    allInStreetPauseMs = 0,
     rngSeed = Some(42L)
   )
 

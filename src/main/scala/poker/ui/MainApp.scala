@@ -9,7 +9,7 @@ import javafx.stage.Stage
 import javafx.util.Duration
 import poker.ai.{AIProfile, Bot}
 import poker.engine.{Dealer, GameState}
-import poker.model.{Action, Config, GameEvent, Player, PlayerStatus}
+import poker.model.{Action, Config, GameEvent, Player, PlayerStatus, Street}
 
 final class MainApp extends Application {
   private var config: Config = Config()
@@ -50,9 +50,10 @@ final class MainApp extends Application {
 
     val events = dealer.startHand()
     syncBotsWithState()
-    handleEvents(events)
-    updateUI()
-    if (dealer.gameState.bettingRound.isDefined) runBots()
+    handleEvents(events, () => {
+      updateUI()
+      if (dealer.gameState.bettingRound.isDefined) runBots()
+    })
   }
 
   private def wireControls(): Unit = {
@@ -78,20 +79,73 @@ final class MainApp extends Application {
   private def handleHumanAction(action: Action): Unit = {
     stopBotTimer()
     val events = dealer.act(humanId, action)
-    handleEvents(events)
-    updateUI()
-    if (dealer.gameState.bettingRound.isDefined) runBots()
+    handleEvents(events, () => {
+      updateUI()
+      if (dealer.gameState.bettingRound.isDefined) runBots()
+    })
   }
 
-  private def handleEvents(events: Vector[GameEvent]): Unit = {
-    events.foreach(tableView.appendLog)
-    events.foreach {
-      case GameEvent.HandStarted(_)           => syncBotsWithState()
-      case GameEvent.StreetAdvanced(street)   => tableView.updateStreet(street)
-      case GameEvent.PotUpdated(pot)          => tableView.updatePot(pot)
-      case GameEvent.Showdown(_)              => scheduleNextHand(Some(config.showdownPauseMs))
-      case _                                  => ()
+  private def boardSnapshotForStreet(street: Street): Vector[String] = {
+    val board = dealer.gameState.board.map(_.toString)
+    val count = street match {
+      case Street.PreFlop  => 0
+      case Street.Flop     => math.min(3, board.length)
+      case Street.Turn     => math.min(4, board.length)
+      case Street.River    => math.min(5, board.length)
+      case Street.Showdown => board.length
     }
+    board.take(count)
+  }
+
+  private def shouldPauseAfterStreet(street: Street): Boolean = {
+    if (config.allInStreetPauseMs <= 0) false
+    else {
+      val isTurnOrRiver = street == Street.Turn || street == Street.River
+      val players = dealer.gameState.players.filter(_.inHand)
+      isTurnOrRiver && players.nonEmpty && players.forall(_.status == PlayerStatus.AllIn)
+    }
+  }
+
+  private def handleEvents(events: Vector[GameEvent], onComplete: () => Unit = () => ()): Unit = {
+    def process(queue: List[GameEvent]): Unit = queue match {
+      case Nil =>
+        onComplete()
+      case event :: tail =>
+        tableView.appendLog(event)
+        val boardOverride = event match {
+          case GameEvent.HandStarted(_) =>
+            syncBotsWithState()
+            None
+          case GameEvent.StreetAdvanced(street) =>
+            tableView.updateStreet(street)
+            Some(boardSnapshotForStreet(street))
+          case GameEvent.PotUpdated(pot) =>
+            tableView.updatePot(pot)
+            None
+          case GameEvent.Showdown(_) =>
+            scheduleNextHand(Some(config.showdownPauseMs))
+            Some(boardSnapshotForStreet(Street.Showdown))
+          case _ => None
+        }
+
+        updateUI()
+        boardOverride.foreach(cards => tableView.updateBoard(cards))
+
+        val delayMs = event match {
+          case GameEvent.StreetAdvanced(street) if shouldPauseAfterStreet(street) => config.allInStreetPauseMs
+          case _                                                                 => 0
+        }
+
+        if (delayMs > 0) {
+          val pause = new PauseTransition(Duration.millis(delayMs.toDouble))
+          pause.setOnFinished(_ => process(tail))
+          pause.play()
+        } else {
+          process(tail)
+        }
+    }
+
+    process(events.toList)
   }
 
   private def updateUI(): Unit = {
@@ -188,14 +242,20 @@ final class MainApp extends Application {
         val currentState = dealer.gameState
         val currentNext = dealer.nextToAct
         if (currentNext.contains(playerId) && currentState.bettingRound.isDefined) {
-          bots.get(playerId).foreach { bot =>
-            val action = bot.decide(currentState)
-            val events = dealer.act(playerId, action)
-            handleEvents(events)
-            updateUI()
+          bots.get(playerId) match {
+            case Some(bot) =>
+              val action = bot.decide(currentState)
+              val events = dealer.act(playerId, action)
+              handleEvents(events, () => {
+                updateUI()
+                continueBots()
+              })
+            case None =>
+              continueBots()
           }
+        } else {
+          continueBots()
         }
-        continueBots()
       })
       pause.play()
     }
@@ -210,9 +270,10 @@ final class MainApp extends Application {
     pause.setOnFinished(_ => {
       val events = dealer.startHand()
       syncBotsWithState()
-      handleEvents(events)
-      updateUI()
-      if (dealer.gameState.bettingRound.isDefined) runBots()
+      handleEvents(events, () => {
+        updateUI()
+        if (dealer.gameState.bettingRound.isDefined) runBots()
+      })
     })
     pause.play()
   }
